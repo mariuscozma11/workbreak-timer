@@ -2,39 +2,30 @@ import React, { useState, useEffect } from "react";
 import { Text, View, StyleSheet, TouchableOpacity } from "react-native";
 import { Play, RotateCcw, Pause } from "lucide-react-native";
 
+//Function to format time in MM:SS format
 const formatTime = (totalSeconds: number): string => {
-    // Total seconds calculation
-    const nonNegativeSeconds = Math.max(0, totalSeconds);
-  
-    // Minute calculation
-    const minutes = Math.floor(nonNegativeSeconds / 60);
-  
-    //Second calculation
-    const seconds = nonNegativeSeconds % 60;
-  
-    //Minute and seconds formatting
-    const formattedMinutes = String(minutes).padStart(2, '0'); // Ex: 5 devine "05"
-    const formattedSeconds = String(seconds).padStart(2, '0'); // Ex: 9 devine "09"
-  
-    // Combination to a string
-    return `${formattedMinutes}:${formattedSeconds}`;
+    const nonNegativeSeconds = Math.max(0, totalSeconds); //Total seconds calculation
+    const minutes = Math.floor(nonNegativeSeconds / 60);//Minute calculation
+    const seconds = nonNegativeSeconds % 60;//Second calculation
+    const formattedMinutes = String(minutes).padStart(2, '0');//Minute and seconds formatting
+    const formattedSeconds = String(seconds).padStart(2, '0');  
+    return `${formattedMinutes}:${formattedSeconds}`;// Combination to a string
   };
 
 //Timer component
 const Timer = () => {
-
     const [isActive, setIsActive] = useState(false);//Tracks if the timer is running
     const [isPaused, setIsPaused] = useState(false);//Tracks if the timer is paused
-    const [workDuration, setWorkDuration] = useState(1500); // Initial work duration 25 minutes in seconds
-    const [breakDuration, setBreakDuration] = useState(5 * 60); // Initial break duration 5 minutes in seconds
-    const [currentMode, setCurrentMode] = useState<"work" | "break">("work"); // Initial mode is work, can be "work" or "break"
+    const [workDuration, setWorkDuration] = useState(1500); //Initial work duration 25 minutes in seconds
+    const [breakDuration, setBreakDuration] = useState(5 * 60); //Initial break duration 5 minutes in seconds
+    const [currentMode, setCurrentMode] = useState<"work" | "break">("work"); //Initial mode is work, can be "work" or "break"
     const [seconds, setSeconds] = useState(workDuration); //Initial value of seconds
 
     useEffect(() => {
         
         let intervalId: NodeJS.Timeout | null = null; //ID variable
-
-        //Effect to handle the timer logic
+        
+        //Decrementing interval condition
         if (isActive && !isPaused) {
             intervalId = setInterval(() => {
                 setSeconds(prevSeconds =>{
@@ -51,13 +42,13 @@ const Timer = () => {
         }
 
         return () => {
-
+            //Cleanup function to clear the interval when the component unmounts or isActive changes
             if (intervalId) {
               clearInterval(intervalId);
             }
           };
 
-    }, );
+    }, [isActive, isPaused]);
 
     const handlePlayPause = () => {
 
