@@ -1,50 +1,36 @@
-# Welcome to your Expo app 👋
+# WorkBreak Timer (MVP)
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+## Description
 
-## Get started
+A simple mobile application, built with React Native, that implements the Pomodoro Technique to help with time management and improving focus. This is the Minimum Viable Product (MVP) version, focusing on the core timer functionality.
 
-1. Install dependencies
+## Core Features (MVP Version)
 
-   ```bash
-   npm install
-   ```
+1.  **Pomodoro Timer:**
+    * Runs a work/break cycle.
+    * **Work Duration (Focus Time):** Defaults to 25 minutes.
+    * **Short Break Duration:** Defaults to 5 minutes.
+    * Visually displays the remaining time for the current interval.
 
-2. Start the app
+2.  **Timer Controls:**
+    * **Play/Pause Button:** Starts or pauses the timer for the current interval.
+    * **Reset Button:** Stops the timer and resets the current interval to its full duration (e.g., back to 25 minutes if during a work interval).
 
-   ```bash
-    npx expo start
-   ```
+3.  **Settings (Accessible via Floating Action Button - FAB):**
+    * A simple settings screen accessed via a visible FAB (+) / (⚙️) on the main screen.
+    * **Customize Work Duration:** Allows the user to modify the default work interval duration.
+    * **Customize Break Duration:** Allows the user to modify the default short break duration.
 
-In the output, you'll find options to open the app in a
+4.  **Automatic Transition:**
+    * The app should automatically transition from work to break intervals (and vice-versa) upon completion. *(Implementation TBC)*
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+## Future Goals (Post-MVP)
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+* Implementation of Long Breaks after a set number of Pomodoro cycles.
+* Notifications upon interval completion.
+* Customizable sounds.
+* Session statistics.
 
-## Get a fresh project
+---
 
-When you're ready, run:
-
-```bash
-npm run reset-project
-```
-
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
-
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+*This document outlines the core features planned for the initial version of the application.*
