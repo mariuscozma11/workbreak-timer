@@ -16,10 +16,16 @@ const formatTime = (totalSeconds: number): string => {
 const Timer = () => {
     const [isActive, setIsActive] = useState(false);//Tracks if the timer is running
     const [isPaused, setIsPaused] = useState(false);//Tracks if the timer is paused
-    const [workDuration, setWorkDuration] = useState(1500); //Initial work duration 25 minutes in seconds
-    const [breakDuration, setBreakDuration] = useState(5 * 60); //Initial break duration 5 minutes in seconds
-    const [currentMode, setCurrentMode] = useState<"work" | "break">("work"); //Initial mode is work, can be "work" or "break"
+    const [workDuration, setWorkDuration] = useState(5); //Initial work duration 25 minutes in seconds
+    const [breakDuration, setBreakDuration] = useState(5 * 60); //Initial short break duration 5 minutes in seconds
+    const [longBreakDuration, setLongBreakDuration] = useState(15 * 60); //Long break duration 15 minutes in seconds
+
+    const [currentMode, setCurrentMode] = useState<"work" | "break" | "long_break">("work"); //Initial mode is work, can be "work" or "break"
+    const [pomodoroCount, setPomodoroCount] = useState(0); //Initial pomodoro cycle count
+    const [cyclesBeforeLongBreak, setcyclesBeforeLongBreak] = useState(2);
+    
     const [seconds, setSeconds] = useState(workDuration); //Initial value of seconds
+    
 
     useEffect(() => {
         
@@ -33,8 +39,34 @@ const Timer = () => {
                         return prevSeconds -1;
                     }
                     else {
+
                         setIsActive(false);
-                        if (intervalId) clearInterval(intervalId);
+                        setIsPaused(true);
+
+                        let nextMode: typeof currentMode = 'work';
+                        let nextDuration = workDuration;
+                        let nextPomodoroCount = pomodoroCount;
+
+                        if (currentMode === 'work') {
+                            nextPomodoroCount++;
+                            if (nextPomodoroCount >= cyclesBeforeLongBreak) {
+                              nextMode = 'long_break';
+                              nextDuration = longBreakDuration;
+                              nextPomodoroCount = 0; // Resetează contorul
+                            } else {
+                              nextMode = 'break';
+                              nextDuration = breakDuration;
+                            }
+                          } else { // După o pauză (scurtă sau lungă), urmează 'work'
+                            nextMode = 'work';
+                            nextDuration = workDuration;
+                            // Contorul nu se schimbă după pauză
+                            }
+
+                        setCurrentMode(nextMode);
+                        setPomodoroCount(nextPomodoroCount);
+                        setSeconds(nextDuration);
+
                         return 0;
                     }
                 });
@@ -66,18 +98,21 @@ const Timer = () => {
 
         if (currentMode === "work") {
             setSeconds(workDuration);
-        } else if (currentMode) {
+        } else if (currentMode === "break") {
             setSeconds(breakDuration);
+        } else if (currentMode === "long_break") {
+            setSeconds(longBreakDuration);
         }
+        
     };
       
     const isRunning = isActive && !isPaused;
 
     return (
+        
         <View style={styles.container}>
-            <Text style={styles.timerText}>
-                {formatTime(seconds)}
-            </Text>
+            <Text style={styles.modeText}>Mode: {currentMode.replace('_', ' ')}</Text>
+            <Text style={styles.timerText}>{formatTime(seconds)}</Text>
             <View style={styles.buttonContainer}>
                 <TouchableOpacity  onPress={handlePlayPause} style={styles.button}>
                     {!isRunning? ( <Play color="white" size={35} />) : ( <Pause color="white" size={35} /> )}
@@ -92,6 +127,12 @@ const Timer = () => {
 
 // Base Styles
 const styles = StyleSheet.create({
+    modeText: {
+        fontSize: 20,
+        marginBottom: 10,
+        color: '#ccc', // Sau altă culoare
+        textTransform: 'capitalize',
+    },
     container: {
         flex: 1,
         justifyContent: "center",
