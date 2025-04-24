@@ -3,34 +3,57 @@ import Timer from "./components/timer";
 import { Settings } from "lucide-react-native";
 import SettingsModal from './components/settingsmodal';
 import React, { useState } from "react";
+import { TimerProvider, useTimerContext } from './context/TimerContext'; 
 
 //Main Component
-export default function Index() {
+const AppContent = () => {
   const [isSettingsModalVisible, setIsSettingsModalVisible] = useState(false);
-  const handleOpenSettings = () => {
-    setIsSettingsModalVisible(true);
+  const { setWorkDuration, workDuration, setBreakDuration, breakDuration, setLongBreakDuration, longBreakDuration} = useTimerContext();
+  const handleOpenSettings = () => { setIsSettingsModalVisible(true); };
+  const handleCloseSettings = () => { setIsSettingsModalVisible(false); };
+  
+  const handleSaveSettings = (settings: { work: number; short: number; long: number }) => {
+    setWorkDuration(settings.work);
+    setBreakDuration(settings.short);
+    setLongBreakDuration(settings.long);
   };
-
-  const handleCloseSettings = () => {
-    setIsSettingsModalVisible(false);
-  };
+  
 
   return (
     <SafeAreaView style={styles.screenContainer}>
-      <Timer />
-      <TouchableOpacity
-        style={styles.fab}
-        onPress={handleOpenSettings}
-        activeOpacity={0.8}>
+
+      <View style={styles.content}>
+        <Timer />
+      </View>
+
+      <TouchableOpacity style={styles.fab} onPress={handleOpenSettings} activeOpacity={0.8}>
         <Settings color="#FFFFFF" size={28} />
       </TouchableOpacity>
+
       <SettingsModal
-        visible={isSettingsModalVisible} // Trimitem starea de vizibilitate
-        onClose={handleCloseSettings}     // Trimitem funcția de închidere
+        visible={isSettingsModalVisible}
+        onClose={handleCloseSettings}
+        onSave={handleSaveSettings}
+        initialWorkDuration={workDuration}
+        initialBreakDuration={breakDuration}
+        initialLongBreakDuration={longBreakDuration}
       />
+
     </SafeAreaView>
   );
 }
+
+
+const App = () => {
+  return (
+    <TimerProvider>
+      <AppContent />
+    </TimerProvider>
+  );
+};
+
+
+export default App;
 
 //StyleSheet
 const styles = StyleSheet.create({

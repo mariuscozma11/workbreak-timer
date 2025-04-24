@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Modal,
   View,
@@ -12,10 +12,71 @@ import {
 
 interface SettingsModalProps {
   visible: boolean;
-  onClose: () => void; 
+  onClose: () => void;
+  onSave: (settings: { work: number; short: number; long: number }) => void;
+  initialWorkDuration?: number;
+  initialBreakDuration?: number;
+  initialLongBreakDuration?: number;
 }
 
-const SettingsModal = ({ visible, onClose }: SettingsModalProps) => {
+//HMS converter
+const secondsToHMS = (totalSeconds: number) => {
+  totalSeconds = Math.max(0, totalSeconds);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+  return {
+      m: String(minutes).padStart(2, '0'),
+      s: String(seconds).padStart(2, '0'),
+  };
+};
+
+
+const SettingsModal = ({ visible, onClose, onSave, initialWorkDuration, initialBreakDuration, initialLongBreakDuration }: SettingsModalProps) => {
+
+  const initialWHMS = secondsToHMS(initialWorkDuration ?? 0);
+  const initialSWHMS = secondsToHMS(initialBreakDuration ?? 0);
+  const initialLWHMS = secondsToHMS(initialLongBreakDuration ?? 0);
+  const [workMinutesInput, setWorkMinutesInput] = useState(initialWHMS.m);
+  const [workSecondsInput, setWorkSecondsInput] = useState(initialWHMS.s);
+  const [breakMinutesInput, setBreakMinutesInput] = useState(initialSWHMS.m);
+  const [breakSecondsInput, setBreakSecondsInput] = useState(initialSWHMS.s);
+  const [longBreakMinutesInput, setLongBreakMinutesInput] = useState(initialLWHMS.m);
+  const [longBreakSecondsInput, setLongBreakSecondsInput] = useState(initialLWHMS.s);
+
+  useEffect(() => {
+    if (visible) {
+      const whms = secondsToHMS(initialWorkDuration ?? 0);
+      setWorkMinutesInput(whms.m);
+      setWorkSecondsInput(whms.s);
+      const shms = secondsToHMS(initialBreakDuration ?? 0);
+      setBreakMinutesInput(shms.m);
+      setBreakSecondsInput(shms.s);
+      const lhms = secondsToHMS(initialLongBreakDuration ?? 0);
+      setLongBreakMinutesInput(lhms.m);
+      setLongBreakSecondsInput(lhms.s);
+    }
+  }, [visible, initialWorkDuration, initialBreakDuration, initialLongBreakDuration]);
+
+  const handleSave = () => {
+    const workM = parseInt(workMinutesInput, 10) || 0;
+    const workS = parseInt(workSecondsInput, 10) || 0;
+    const totalWorkSeconds = (workM * 60) + workS;
+
+    const breakM = parseInt(breakMinutesInput, 10) || 0;
+    const breakS = parseInt(breakSecondsInput, 10) || 0;
+    const totalBreakSeconds = (breakM * 60) + breakS;
+
+    const longbreakM = parseInt(longBreakMinutesInput, 10) || 0;
+    const longbreakS = parseInt(longBreakSecondsInput, 10) || 0;
+    const totalLongBreakSeconds = (longbreakM * 60) + longbreakS;
+    onSave({
+      work: totalWorkSeconds,
+      short: totalBreakSeconds,
+      long: totalLongBreakSeconds
+    });
+    onClose();
+  };
+
   return (
     <Modal
         animationType="fade"
@@ -26,27 +87,22 @@ const SettingsModal = ({ visible, onClose }: SettingsModalProps) => {
       <TouchableWithoutFeedback onPress={onClose}>
         <View style={styles.modalBackdrop}>
           <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
-            {/* Contentul modalului */}
+            {/* Modal content */}
             <View style={styles.modalContent}>
               <Text style={{ padding: 20, fontWeight: 'bold', textAlign: 'center', fontSize: 24 }}>
                   Settings
               </Text>
               <Text style={styles.sectionTitle}>Work time</Text>
-              {/* Caseta input work time */}
+              {/* Work time input box */}
               <View style={styles.inputcontainer}>
-                <TextInput
-                  style={styles.input}
-                  placeholder="HH"
-                  keyboardType="numeric"
-                  placeholderTextColor= "gray"
-                  textAlign="center"
-                /><Text style={styles.separator}>:</Text>
                 <TextInput
                   style={styles.input}
                   placeholder="MM"
                   keyboardType="numeric"
                   placeholderTextColor= "gray"
                   textAlign="center"
+                  value={workMinutesInput}
+                  onChangeText={setWorkMinutesInput}
                 /><Text style={styles.separator}>:</Text>
                 <TextInput
                   style={styles.input}
@@ -54,10 +110,12 @@ const SettingsModal = ({ visible, onClose }: SettingsModalProps) => {
                   keyboardType="numeric"
                   placeholderTextColor= "gray"
                   textAlign="center"
+                  value={workSecondsInput}
+                  onChangeText={setWorkSecondsInput}
                 />
               </View>
               <Text style={styles.sectionTitle}>Short break time</Text>
-              {/* Caseta input break time */}
+              {/* Break time input box */}
               <View style={styles.inputcontainer}>
                 <TextInput
                   style={styles.input}
@@ -65,6 +123,8 @@ const SettingsModal = ({ visible, onClose }: SettingsModalProps) => {
                   keyboardType="numeric"
                   placeholderTextColor= "gray"
                   textAlign="center"
+                  value={breakMinutesInput}
+                  onChangeText={setBreakMinutesInput}
                 /><Text style={styles.separator}>:</Text>
                 <TextInput
                   style={styles.input}
@@ -72,6 +132,8 @@ const SettingsModal = ({ visible, onClose }: SettingsModalProps) => {
                   keyboardType="numeric"
                   placeholderTextColor= "gray"
                   textAlign="center"
+                  value={breakSecondsInput}
+                  onChangeText={setBreakSecondsInput}
                 />
                 
               </View>
@@ -85,6 +147,8 @@ const SettingsModal = ({ visible, onClose }: SettingsModalProps) => {
                   keyboardType="numeric"
                   placeholderTextColor= "gray"
                   textAlign="center"
+                  value={longBreakMinutesInput}
+                  onChangeText={setLongBreakMinutesInput}
                 /><Text style={styles.separator}>:</Text>
                 <TextInput
                   style={styles.input}
@@ -92,6 +156,8 @@ const SettingsModal = ({ visible, onClose }: SettingsModalProps) => {
                   keyboardType="numeric"
                   placeholderTextColor= "gray"
                   textAlign="center"
+                  value={longBreakSecondsInput}
+                  onChangeText={setLongBreakSecondsInput}
                 />
                 
               </View>
@@ -101,7 +167,9 @@ const SettingsModal = ({ visible, onClose }: SettingsModalProps) => {
                   {/* Buton de save */}
                   <TouchableOpacity
                       style={[styles.button, styles.saveButton]} 
-                      onPress={onClose} 
+                      onPress={() => {
+                        handleSave()
+                     }}
                       activeOpacity={0.7} 
                   >
                       <Text style={[styles.buttonText, styles.saveButtonText]}>Save</Text>

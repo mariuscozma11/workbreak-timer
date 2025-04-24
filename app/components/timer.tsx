@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Text, View, StyleSheet, TouchableOpacity } from "react-native";
 import { Play, RotateCcw, Pause } from "lucide-react-native";
+import { useTimerContext } from '../context/TimerContext'; // Ajustează calea
 
 //Function to format time in MM:SS format
 const formatTime = (totalSeconds: number): string => {
@@ -14,18 +15,18 @@ const formatTime = (totalSeconds: number): string => {
 
 //Timer component
 const Timer = () => {
-    const [isActive, setIsActive] = useState(false);//Tracks if the timer is running
-    const [isPaused, setIsPaused] = useState(false);//Tracks if the timer is paused
-    const [workDuration, setWorkDuration] = useState(5); //Initial work duration 25 minutes in seconds
-    const [breakDuration, setBreakDuration] = useState(5 * 60); //Initial short break duration 5 minutes in seconds
-    const [longBreakDuration, setLongBreakDuration] = useState(15 * 60); //Long break duration 15 minutes in seconds
+    const [isActive, setIsActive] = useState(false);
+    const [isPaused, setIsPaused] = useState(false);
+    const { workDuration , breakDuration, longBreakDuration, cyclesBeforeLongBreak } = useTimerContext();
+    const [currentMode, setCurrentMode] = useState<"work" | "break" | "long_break">("work");
+    const [pomodoroCount, setPomodoroCount] = useState(0);
+    const [seconds, setSeconds] = useState(workDuration);
 
-    const [currentMode, setCurrentMode] = useState<"work" | "break" | "long_break">("work"); //Initial mode is work, can be "work" or "break"
-    const [pomodoroCount, setPomodoroCount] = useState(0); //Initial pomodoro cycle count
-    const [cyclesBeforeLongBreak, setcyclesBeforeLongBreak] = useState(2);
-    
-    const [seconds, setSeconds] = useState(workDuration); //Initial value of seconds
-    
+    useEffect(() => {
+        if (!isActive && currentMode === 'work') {
+          setSeconds(workDuration)
+        }
+      }, [workDuration, isActive, currentMode]);    
 
     useEffect(() => {
         
@@ -52,15 +53,15 @@ const Timer = () => {
                             if (nextPomodoroCount >= cyclesBeforeLongBreak) {
                               nextMode = 'long_break';
                               nextDuration = longBreakDuration;
-                              nextPomodoroCount = 0; // Resetează contorul
+                              nextPomodoroCount = 0; 
                             } else {
                               nextMode = 'break';
                               nextDuration = breakDuration;
                             }
-                          } else { // După o pauză (scurtă sau lungă), urmează 'work'
+                          } else { 
                             nextMode = 'work';
                             nextDuration = workDuration;
-                            // Contorul nu se schimbă după pauză
+                            
                             }
 
                         setCurrentMode(nextMode);
@@ -72,13 +73,7 @@ const Timer = () => {
                 });
             }, 1000);//1 second interval
         }
-
-        return () => {
-            //Cleanup function to clear the interval when the component unmounts or isActive changes
-            if (intervalId) {
-              clearInterval(intervalId);
-            }
-          };
+        return () => { if (intervalId) { clearInterval(intervalId); } };
 
     }, [isActive, isPaused]);
 
